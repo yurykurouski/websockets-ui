@@ -96,8 +96,17 @@ class GameDB {
     });
   }
 
-  public getWinnersTable(): string {
-    return JSON.stringify(this._players.sort((playerA, playerB) => playerA.winsCount - playerB.winsCount));
+  public getWinnersTable() {
+    const data = JSON.stringify(
+      this._players.sort((playerA, playerB) =>
+        playerA.winsCount - playerB.winsCount)
+        .map(el => JSON.stringify({ name: el.name, wins: el.winsCount })));
+
+    return JSON.stringify({
+      type: MSG_TYPE.UPDATE_WINNERS,
+      data,
+      id: 0
+    });
   }
 }
 
