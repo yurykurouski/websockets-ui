@@ -5,7 +5,7 @@ import { MSG_TYPE } from "../constants";
 import { TPlayer } from "../types";
 
 type TRoom = {
-  roomID: string
+  roomId: string
   roomUsers: TPlayer[],
 }
 
@@ -63,16 +63,22 @@ class GameDB {
         errorText: 'Wrong password'
       });
     }
+    return this._prepareData(MSG_TYPE.REG, {
+      name: playerData.name,
+      index: playerData.index,
+      error: false,
+      errorText: ''
+    });
   }
 
   public createRoom(connectionID: string) {
     const creator = this._getUserByConnectionId(connectionID);
 
     if (creator) {
-      const roomID = idGen();
+      const roomId = idGen();
 
       const room = {
-        roomID,
+        roomId,
         roomUsers: [{ name: creator.name, index: creator.index }]
       } as TRoom;
 
