@@ -21,7 +21,6 @@ class GameDB {
   private get rooms(): TRoom[] {
     return this._rooms;
   }
-
   private _getUserByConnectionId(connectionID: string): TPlayer | undefined {
     return this._players.find(p => p.connectionID === connectionID);
   }
@@ -30,8 +29,15 @@ class GameDB {
 
     return { player: this._players[index], index };
   }
+  private _prepareData(type: MSG_TYPE, data: unknown) {
+    return JSON.stringify({
+      type,
+      data: JSON.stringify(data),
+      id: 0,
+    });
+  }
 
-  public registerPlayer(playerData: TPlayer, connectionID: string): string | undefined {
+  public registerPlayer(playerData: TPlayer, connectionID: string): string {
     const { player, index } = this._getUserByName(playerData.name);
 
     if (index < 0) {
@@ -44,25 +50,17 @@ class GameDB {
         winsCount: Math.round(Math.random())
       });
 
-      return JSON.stringify({
-        type: MSG_TYPE.REG,
-        data: JSON.stringify({
-          name: playerData.name,
-          index: playerID,
-          error: false,
-          errorText: ''
-        }),
-        id: 0
+      return this._prepareData(MSG_TYPE.REG, {
+        name: playerData.name,
+        index: playerID,
+        error: false,
+        errorText: ''
       });
-    } if (player?.name === playerData.name && player.password !== playerData.password) {
-      return JSON.stringify({
-        type: MSG_TYPE.REG,
-        data: JSON.stringify({
-          ...player,
-          error: true,
-          errorText: 'Wrong password'
-        }),
-        id: 0
+    } else if (player?.name === playerData.name && player.password !== playerData.password) {
+      return this._prepareData(MSG_TYPE.REG, {
+        ...player,
+        error: true,
+        errorText: 'Wrong password'
       });
     }
   }
@@ -80,33 +78,20 @@ class GameDB {
 
       this._rooms.push(room);
 
-      return {
-        type: MSG_TYPE.UPDATE_ROOM,
-        data: JSON.stringify(this.rooms),
-        id: 0
-      };
+      return this._prepareData(MSG_TYPE.UPDATE_ROOM, this.rooms);
     }
   }
 
   public getRoomsData() {
-    return JSON.stringify({
-      type: MSG_TYPE.UPDATE_ROOM,
-      data: JSON.stringify(this.rooms),
-      id: 0
-    });
+    return this._prepareData(MSG_TYPE.UPDATE_ROOM, this.rooms);
   }
 
   public getWinnersTable() {
-    const data = JSON.stringify(
-      this._players.sort((playerA, playerB) =>
-        playerA.winsCount - playerB.winsCount)
-        .map(el => JSON.stringify({ name: el.name, wins: el.winsCount })));
+    const data = this._players.sort((playerA, playerB) =>
+      playerA.winsCount - playerB.winsCount)
+      .map(el => JSON.stringify({ name: el.name, wins: el.winsCount }));
 
-    return JSON.stringify({
-      type: MSG_TYPE.UPDATE_WINNERS,
-      data,
-      id: 0
-    });
+    return this._prepareData(MSG_TYPE.UPDATE_WINNERS, data);
   }
 }
 
