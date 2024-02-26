@@ -1,5 +1,5 @@
 import { Ship } from "../../types";
-import { idGen } from "../../utils";
+import { fillBattlefield, idGen } from "../../utils";
 import { Player } from "../Player";
 
 
@@ -7,7 +7,6 @@ export class Room {
   public roomUsers: Player[];
   public roomId: string;
   private _usersReady: number;
-  private _creatorId: string;
   public battlefield: { [key: string]: Ship[] };
   public currentPlayerIndex: number;
 
@@ -15,7 +14,6 @@ export class Room {
     this.roomId = idGen();
     this.roomUsers = [];
     this._usersReady = 0;
-    this._creatorId = player.index;
     this.currentPlayerIndex = 0;
     this.battlefield = {};
   }
@@ -27,6 +25,8 @@ export class Room {
 
   public addShips(userId: string, ships: Ship[]) {
     const player = this.roomUsers.find(player => player.index === userId);
+
+    const test = fillBattlefield(ships);
 
     if (player) {
       player.ships = ships;
@@ -57,6 +57,10 @@ export class Room {
       return position.x === x && position.y === y;
     });
 
-    console.log('ship: ', ship);
+    return {
+      position: { x, y },
+      currentPlayer: indexPlayer,
+      status: 'miss'
+    };
   }
 }

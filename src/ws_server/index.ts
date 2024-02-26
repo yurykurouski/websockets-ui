@@ -6,7 +6,7 @@ import { WSConnection } from './types';
 
 
 const wss = new WebSocketServer({ port: 3000 });
-const messenger = new Messenger();
+export const messenger = new Messenger();
 
 wss.on('connection', (ws: WSConnection) => {
   messenger.init(ws);
